@@ -90,6 +90,7 @@ extern uint64 sys_exec(void);
 extern uint64 sys_exit(void);
 extern uint64 sys_fork(void);
 extern uint64 sys_fstat(void);
+extern uint64 sys_getpa(void);
 extern uint64 sys_getpid(void);
 extern uint64 sys_getppid(void);
 extern uint64 sys_kill(void);
@@ -131,6 +132,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_getppid] sys_getppid,
 [SYS_yield]   sys_yield,
+[SYS_getpa]   sys_getpa,
 };
 
 void

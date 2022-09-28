@@ -110,3 +110,13 @@ sys_yield(void)
   yield();
   return 0;
 }
+
+uint64
+sys_getpa(void)
+{
+  int va;
+  if(argint(0, &va) < 0)
+    return -1;
+    
+  return walkaddr(myproc()->pagetable, va) + (va & (PGSIZE - 1));
+}

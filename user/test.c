@@ -1,11 +1,24 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
+//getpa
+int main(int argc, char const *argv[])
+{
+    char x = '0';
+    int z,y;
+    z = 9;
+    y = 8;
+    printf("%l \n%l \n%l",getpa(&z), getpa(&x), getpa(&y));
+    exit(0);
+    return 0;
+}
+
+/*
 //yield
 int main(int argc, char const *argv[])
 {
     if(fork() == 0){
-        printf("C\n");
+        printf("C1\n");
     }
     else{
         yield();
@@ -14,7 +27,7 @@ int main(int argc, char const *argv[])
     exit(0);
     return 0;
 }
-/*
+
 //getppid
 int main(int argc, char const *argv[])
 {
