@@ -99,8 +99,8 @@ sys_uptime(void)
 uint64
 sys_getppid(void)
 {
-  struct proc* par_proc = myproc()->parent->parent->parent;
-  if(par_proc) return myproc()->parent->pid;
+  struct proc* par_proc = myproc()->parent;
+  if(par_proc) return par_proc->pid;
   else return -1;
 }
 
@@ -134,4 +134,10 @@ sys_waitpid(void)
   if(pid == -1)
     return wait(p);
   return waitpid(pid, p);
+}
+
+uint64
+sys_ps(void){
+  ps();
+  return 0;
 }

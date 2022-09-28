@@ -99,6 +99,7 @@ extern uint64 sys_mkdir(void);
 extern uint64 sys_mknod(void);
 extern uint64 sys_open(void);
 extern uint64 sys_pipe(void);
+extern uint64 sys_ps(void);
 extern uint64 sys_read(void);
 extern uint64 sys_sbrk(void);
 extern uint64 sys_sleep(void);
@@ -135,6 +136,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_yield]   sys_yield,
 [SYS_getpa]   sys_getpa,
 [SYS_waitpid] sys_waitpid,
+[SYS_ps]      sys_ps,
 };
 
 void

@@ -125,3 +125,8 @@ waitpid:
  li a7, SYS_waitpid
  ecall
  ret
+.global ps
+ps:
+ li a7, SYS_ps
+ ecall
+ ret

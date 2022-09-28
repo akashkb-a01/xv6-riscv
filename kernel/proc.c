@@ -119,6 +119,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->ctime = ticks;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -370,6 +371,7 @@ exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->etime = ticks;
 
   release(&wait_lock);
 
@@ -452,6 +454,7 @@ scheduler(void)
         // to release its lock and then reacquire it
         // before jumping back to us.
         p->state = RUNNING;
+        // p->stime = ticks;
         c->proc = p;
         swtch(&c->context, &p->context);
 
@@ -519,7 +522,7 @@ forkret(void)
     first = 0;
     fsinit(ROOTDEV);
   }
-
+  myproc()->stime = ticks;
   usertrapret();
 }
 
@@ -702,4 +705,24 @@ waitpid(uint64 _pid, uint64 addr)
     // Wait for a child to exit.
     sleep(p, &wait_lock);  //DOC: wait-sleep
   }
+}
+
+void
+ps(void)
+{
+  struct proc *np;
+  char* states[] = { "UNUSED", "USED", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE" };
+  // acquire(&wait_lock);
+
+  // for(;;){
+    // Scan through table looking for exited children.
+    // havekids = 0;
+    for(np = proc; np < &proc[NPROC]; np++){
+      acquire(&np->lock);
+      if(np->state != UNUSED)
+        printf("pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%x\n", np->pid, (np->parent) ? np->parent->pid : -1, states[np->state], np->name, np->ctime, np->stime, (np->state == ZOMBIE)? np->etime : ticks - np->stime, np->sz);
+      release(&np->lock);
+    }
+    return;
+  // }
 }

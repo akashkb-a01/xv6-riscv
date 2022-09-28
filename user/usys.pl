@@ -40,3 +40,4 @@ entry("getppid");
 entry("yield");
 entry("getpa");
 entry("waitpid");
+entry("ps");

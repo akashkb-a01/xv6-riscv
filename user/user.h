@@ -27,6 +27,7 @@ int getppid(void);
 int yield(void);
 uint getpa(void*);
 int waitpid(int, int*);
+int ps(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

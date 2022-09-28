@@ -1,6 +1,24 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
+
+//ps
+int main(int argc, char const *argv[])
+{
+    int y = fork();
+    if(y == 0){
+        printf("\n");
+        while(1);
+    }
+    else{
+        kill(y);
+        ps();}
+    exit(0);
+    return 0;
+}
+
+
+/*
 //waitpid
 int main(int argc, char const *argv[])
 {
@@ -22,8 +40,6 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-
-/*
 //getpa
 int main(int argc, char const *argv[])
 {
