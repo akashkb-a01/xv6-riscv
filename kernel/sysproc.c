@@ -122,6 +122,15 @@ sys_getpa(void)
 }
 
 uint64
+sys_forkf(void)
+{
+  uint64 fa;
+  if(argaddr(0, &fa) < 0)
+    return -1;
+  return forkf(fa);
+}
+
+uint64
 sys_waitpid(void)
 {
   uint64 pid;
@@ -140,4 +149,19 @@ uint64
 sys_ps(void){
   ps();
   return 0;
+}
+
+uint64
+sys_pinfo(void){
+  uint64 pid;
+  struct procstat *p;
+  if(argaddr(0, &pid) < 0)
+    return -1;
+  if(pid == -1) 
+    pid = myproc()->pid;
+  if(argaddr(1, (void*)&p))
+    return -1;
+  p = (struct procstat*)p;
+  printf("sysproc: %x\n", p);
+  return pinfo(pid, p);
 }

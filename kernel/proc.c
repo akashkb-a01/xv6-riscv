@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "procstat.h"
 
 struct cpu cpus[NCPU];
 
@@ -658,6 +659,55 @@ procdump(void)
   }
 }
 
+int
+forkf(uint64 va)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
+
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+
+  // Copy user memory from parent to child.
+  if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+  np->sz = p->sz;
+
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = 0;
+  np->trapframe->epc = va;
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+
+  pid = np->pid;
+
+  release(&np->lock);
+
+  acquire(&wait_lock);
+  np->parent = p;
+  release(&wait_lock);
+
+  acquire(&np->lock);
+  np->state = RUNNABLE;
+  release(&np->lock);
+
+  return pid;
+}
+
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
@@ -725,4 +775,30 @@ ps(void)
     }
     return;
   // }
+}
+
+int
+pinfo(uint64 pid, struct procstat * prcst){
+  struct proc *np ;//= (
+  // prcst = (struct procstat *)p;
+  // printf("%d\n", pc->pid);
+  char* states[] = { "UNUSED", "USED", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE" };
+  for(np = proc; np < &proc[NPROC]; np++){
+      acquire(&np->lock);
+      if((np->state != UNUSED)&&(np->pid == pid)){
+        printf("pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%x\n", np->pid, (np->parent) ? np->parent->pid : -1, states[np->state], np->name, np->ctime, np->stime, (np->state == ZOMBIE)? np->etime : ticks - np->stime, np->sz);
+        prcst->pid = np->pid;
+        prcst->ppid = (np->parent) ? np->parent->pid : -1;
+        safestrcpy(prcst->state, states[np->state], sizeof(states[np->state]));
+        safestrcpy(prcst->command, np->name, sizeof(np->name));
+        prcst->ctime = np->ctime;
+        prcst->stime = np->stime;
+        prcst->etime = (np->state == ZOMBIE)? np->etime : ticks - np->stime;
+        prcst->size = np->sz;
+        release(&np->lock);
+        return 0;
+        }
+      release(&np->lock);
+    }
+  return -1;
 }

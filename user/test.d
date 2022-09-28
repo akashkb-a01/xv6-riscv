@@ -1,1 +1,1 @@
-user/test.o: user/test.c kernel/types.h user/user.h
+user/test.o: user/test.c kernel/types.h kernel/procstat.h user/user.h

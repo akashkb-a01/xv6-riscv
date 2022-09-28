@@ -47,7 +47,7 @@ forktest(void)
 
   print("fork test\n");
   3a:	00000517          	auipc	a0,0x0
-  3e:	41e50513          	addi	a0,a0,1054 # 458 <ps+0xe>
+  3e:	42e50513          	addi	a0,a0,1070 # 468 <pinfo+0xe>
   42:	00000097          	auipc	ra,0x0
   46:	fbe080e7          	jalr	-66(ra) # 0 <print>
 
@@ -71,7 +71,7 @@ forktest(void)
   if(n == N){
     print("fork claimed to work N times!\n");
   64:	00000517          	auipc	a0,0x0
-  68:	40450513          	addi	a0,a0,1028 # 468 <ps+0x1e>
+  68:	41450513          	addi	a0,a0,1044 # 478 <pinfo+0x1e>
   6c:	00000097          	auipc	ra,0x0
   70:	f94080e7          	jalr	-108(ra) # 0 <print>
     exit(1);
@@ -113,7 +113,7 @@ forktest(void)
 
   print("fork test OK\n");
   b4:	00000517          	auipc	a0,0x0
-  b8:	40450513          	addi	a0,a0,1028 # 4b8 <ps+0x6e>
+  b8:	41450513          	addi	a0,a0,1044 # 4c8 <pinfo+0x6e>
   bc:	00000097          	auipc	ra,0x0
   c0:	f44080e7          	jalr	-188(ra) # 0 <print>
 }
@@ -125,7 +125,7 @@ forktest(void)
   ce:	8082                	ret
       print("wait stopped early\n");
   d0:	00000517          	auipc	a0,0x0
-  d4:	3b850513          	addi	a0,a0,952 # 488 <ps+0x3e>
+  d4:	3c850513          	addi	a0,a0,968 # 498 <pinfo+0x3e>
   d8:	00000097          	auipc	ra,0x0
   dc:	f28080e7          	jalr	-216(ra) # 0 <print>
       exit(1);
@@ -134,7 +134,7 @@ forktest(void)
   e6:	2a8080e7          	jalr	680(ra) # 38a <exit>
     print("wait got too many\n");
   ea:	00000517          	auipc	a0,0x0
-  ee:	3b650513          	addi	a0,a0,950 # 4a0 <ps+0x56>
+  ee:	3c650513          	addi	a0,a0,966 # 4b0 <pinfo+0x56>
   f2:	00000097          	auipc	ra,0x0
   f6:	f0e080e7          	jalr	-242(ra) # 0 <print>
     exit(1);
@@ -820,22 +820,42 @@ getpa:
  ret
  440:	8082                	ret
 
-0000000000000442 <waitpid>:
-.global waitpid
-waitpid:
- li a7, SYS_waitpid
+0000000000000442 <forkf>:
+.global forkf
+forkf:
+ li a7, SYS_forkf
  442:	48e5                	li	a7,25
  ecall
  444:	00000073          	ecall
  ret
  448:	8082                	ret
 
-000000000000044a <ps>:
-.global ps
-ps:
- li a7, SYS_ps
+000000000000044a <waitpid>:
+.global waitpid
+waitpid:
+ li a7, SYS_waitpid
  44a:	48e9                	li	a7,26
  ecall
  44c:	00000073          	ecall
  ret
  450:	8082                	ret
+
+0000000000000452 <ps>:
+.global ps
+ps:
+ li a7, SYS_ps
+ 452:	48ed                	li	a7,27
+ ecall
+ 454:	00000073          	ecall
+ ret
+ 458:	8082                	ret
+
+000000000000045a <pinfo>:
+.global pinfo
+pinfo:
+ li a7, SYS_pinfo
+ 45a:	48f1                	li	a7,28
+ ecall
+ 45c:	00000073          	ecall
+ ret
+ 460:	8082                	ret

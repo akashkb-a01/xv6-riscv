@@ -120,6 +120,11 @@ getpa:
  li a7, SYS_getpa
  ecall
  ret
+.global forkf
+forkf:
+ li a7, SYS_forkf
+ ecall
+ ret
 .global waitpid
 waitpid:
  li a7, SYS_waitpid
@@ -128,5 +133,10 @@ waitpid:
 .global ps
 ps:
  li a7, SYS_ps
+ ecall
+ ret
+.global pinfo
+pinfo:
+ li a7, SYS_pinfo
  ecall
  ret

@@ -89,6 +89,7 @@ extern uint64 sys_dup(void);
 extern uint64 sys_exec(void);
 extern uint64 sys_exit(void);
 extern uint64 sys_fork(void);
+extern uint64 sys_forkf(void);
 extern uint64 sys_fstat(void);
 extern uint64 sys_getpa(void);
 extern uint64 sys_getpid(void);
@@ -98,6 +99,7 @@ extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_mknod(void);
 extern uint64 sys_open(void);
+extern uint64 sys_pinfo(void);
 extern uint64 sys_pipe(void);
 extern uint64 sys_ps(void);
 extern uint64 sys_read(void);
@@ -135,8 +137,10 @@ static uint64 (*syscalls[])(void) = {
 [SYS_getppid] sys_getppid,
 [SYS_yield]   sys_yield,
 [SYS_getpa]   sys_getpa,
+[SYS_forkf]   sys_forkf,
 [SYS_waitpid] sys_waitpid,
 [SYS_ps]      sys_ps,
+[SYS_pinfo]   sys_pinfo,
 };
 
 void
