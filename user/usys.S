@@ -120,3 +120,8 @@ getpa:
  li a7, SYS_getpa
  ecall
  ret
+.global waitpid
+waitpid:
+ li a7, SYS_waitpid
+ ecall
+ ret

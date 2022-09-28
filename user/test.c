@@ -1,6 +1,29 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
+//waitpid
+int main(int argc, char const *argv[])
+{
+    int x = fork();
+    if(x == 0){
+        printf("%d: Child Here\n", getpid());
+        x = fork();
+        if(x == 0) printf("%d\n", getpid());
+        else{
+            // printf("%d\n", getpid());
+            while(1);
+        }
+    }
+    else{
+        waitpid(x, 0);
+        printf("%d: Child Not here\n", x);
+    }
+    exit(0);
+    return 0;
+}
+
+
+/*
 //getpa
 int main(int argc, char const *argv[])
 {
@@ -13,7 +36,6 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-/*
 //yield
 int main(int argc, char const *argv[])
 {

@@ -120,3 +120,18 @@ sys_getpa(void)
     
   return walkaddr(myproc()->pagetable, va) + (va & (PGSIZE - 1));
 }
+
+uint64
+sys_waitpid(void)
+{
+  uint64 pid;
+  uint64 p;
+  if(argaddr(0, &pid) < 0)
+    return -1;
+  if(argaddr(1, &p) < 0)
+    return -1;
+  // printf("%d\n", p);
+  if(pid == -1)
+    return wait(p);
+  return waitpid(pid, p);
+}

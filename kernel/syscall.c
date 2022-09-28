@@ -104,6 +104,7 @@ extern uint64 sys_sbrk(void);
 extern uint64 sys_sleep(void);
 extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
+extern uint64 sys_waitpid(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_yield(void);
@@ -133,6 +134,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_getppid] sys_getppid,
 [SYS_yield]   sys_yield,
 [SYS_getpa]   sys_getpa,
+[SYS_waitpid] sys_waitpid,
 };
 
 void
