@@ -96,14 +96,20 @@ sys_uptime(void)
   return xticks;
 }
 
+//Returns the pid of the parent of the calling process
 uint64
 sys_getppid(void)
 {
   struct proc* par_proc = myproc()->parent;
-  if(par_proc) return par_proc->pid;
-  else return -1;
+  //if parent process exists
+  if(par_proc) 
+    return par_proc->pid;
+  
+  else 
+    return -1;
 }
 
+//Calling process is de-scheduled
 uint64
 sys_yield(void)
 {
@@ -111,57 +117,72 @@ sys_yield(void)
   return 0;
 }
 
+//Takes a virtual address and returns the corresponding physical address
 uint64
 sys_getpa(void)
 {
-  int va;
-  if(argint(0, &va) < 0)
+  uint64 va;  //virtual address
+
+  if(argaddr(0, &va) < 0)
     return -1;
     
   return walkaddr(myproc()->pagetable, va) + (va & (PGSIZE - 1));
 }
 
+//Forked child first executes passed function
 uint64
 sys_forkf(void)
 {
-  uint64 fa;
+  uint64 fa;  //funtion pointer
+  
   if(argaddr(0, &fa) < 0)
     return -1;
+  
   return forkf(fa);
 }
 
+//Waits for the process with the passed pid
 uint64
 sys_waitpid(void)
 {
   uint64 pid;
-  uint64 p;
+  uint64 p; //pointer for status
+  
   if(argaddr(0, &pid) < 0)
     return -1;
+  
   if(argaddr(1, &p) < 0)
     return -1;
-  // printf("%d\n", p);
+  
+  //Case when passed pid is -1 simply execute wait()
   if(pid == -1)
     return wait(p);
+  
   return waitpid(pid, p);
 }
 
+//Walks over the process table and prints the fields of it.
 uint64
 sys_ps(void){
   ps();
   return 0;
 }
 
+//returns the information about a specific process to the calling program
 uint64
 sys_pinfo(void){
   uint64 pid;
-  struct procstat *p;
+  uint64 p;   //pointer to the procstat struct
+  
   if(argaddr(0, &pid) < 0)
     return -1;
+  
+  //Case when passed pid is -1
   if(pid == -1) 
     pid = myproc()->pid;
-  if(argaddr(1, (void*)&p))
+  
+  if(argaddr(1, &p) < 0)
     return -1;
-  p = (struct procstat*)p;
-  printf("sysproc: %x\n", p);
+  
   return pinfo(pid, p);
 }

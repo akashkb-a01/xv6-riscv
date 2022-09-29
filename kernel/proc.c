@@ -660,7 +660,7 @@ procdump(void)
 }
 
 int
-forkf(uint64 va)
+forkf(uint64 fa)
 {
   int i, pid;
   struct proc *np;
@@ -684,7 +684,8 @@ forkf(uint64 va)
 
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
-  np->trapframe->epc = va;
+  // Set the program counter to the function address fa
+  np->trapframe->epc = fa;
   // increment reference counts on open file descriptors.
   for(i = 0; i < NOFILE; i++)
     if(p->ofile[i])
@@ -708,8 +709,8 @@ forkf(uint64 va)
   return pid;
 }
 
-// Wait for a child process to exit and return its pid.
-// Return -1 if this process has no children.
+// Wait for the child process with given pid to exit and return its pid.
+// Return -1 if this process has no children with the given pid
 int
 waitpid(uint64 _pid, uint64 addr)
 {
@@ -761,44 +762,55 @@ void
 ps(void)
 {
   struct proc *np;
-  char* states[] = { "UNUSED", "USED", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE" };
-  // acquire(&wait_lock);
+  static char *states[] = {
+  [UNUSED]    "unused",
+  [SLEEPING]  "sleep ",
+  [RUNNABLE]  "runble",
+  [RUNNING]   "run   ",
+  [ZOMBIE]    "zombie"
+  };
 
-  // for(;;){
-    // Scan through table looking for exited children.
-    // havekids = 0;
-    for(np = proc; np < &proc[NPROC]; np++){
-      acquire(&np->lock);
-      if(np->state != UNUSED)
-        printf("pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%x\n", np->pid, (np->parent) ? np->parent->pid : -1, states[np->state], np->name, np->ctime, np->stime, (np->state == ZOMBIE)? np->etime : ticks - np->stime, np->sz);
-      release(&np->lock);
-    }
-    return;
-  // }
+  for(np = proc; np < &proc[NPROC]; np++){
+    acquire(&np->lock);
+    if(np->state != UNUSED)
+      printf("pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n", np->pid, (np->parent) ? np->parent->pid : -1, states[np->state], np->name, np->ctime, np->stime, (np->state == ZOMBIE)? np->etime : ticks - np->stime, np->sz);
+    release(&np->lock);
+  }
+  return ;
 }
 
 int
-pinfo(uint64 pid, struct procstat * prcst){
-  struct proc *np ;//= (
-  // prcst = (struct procstat *)p;
-  // printf("%d\n", pc->pid);
-  char* states[] = { "UNUSED", "USED", "SLEEPING", "RUNNABLE", "RUNNING", "ZOMBIE" };
+pinfo(uint64 pid, uint64 p){
+  struct proc *np ;
+  struct procstat prc;
+  struct procstat *prcst = &prc;
+  static char *states[] = {
+  [UNUSED]    "unused",
+  [SLEEPING]  "sleep ",
+  [RUNNABLE]  "runble",
+  [RUNNING]   "run   ",
+  [ZOMBIE]    "zombie"
+  };
+
   for(np = proc; np < &proc[NPROC]; np++){
-      acquire(&np->lock);
-      if((np->state != UNUSED)&&(np->pid == pid)){
-        printf("pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%x\n", np->pid, (np->parent) ? np->parent->pid : -1, states[np->state], np->name, np->ctime, np->stime, (np->state == ZOMBIE)? np->etime : ticks - np->stime, np->sz);
-        prcst->pid = np->pid;
-        prcst->ppid = (np->parent) ? np->parent->pid : -1;
-        safestrcpy(prcst->state, states[np->state], sizeof(states[np->state]));
-        safestrcpy(prcst->command, np->name, sizeof(np->name));
-        prcst->ctime = np->ctime;
-        prcst->stime = np->stime;
-        prcst->etime = (np->state == ZOMBIE)? np->etime : ticks - np->stime;
-        prcst->size = np->sz;
-        release(&np->lock);
-        return 0;
-        }
+    acquire(&np->lock);
+    if((np->state != UNUSED)&&(np->pid == pid)){
+      //Fill up the fields with appropriate values
+      prcst->pid = np->pid;
+      prcst->ppid = (np->parent) ? np->parent->pid : -1;
+      safestrcpy(prcst->state, states[np->state], sizeof(states[np->state]));
+      safestrcpy(prcst->command, np->name, sizeof(np->name));
+      prcst->ctime = np->ctime;
+      prcst->stime = np->stime;
+      prcst->etime = (np->state == ZOMBIE)? np->etime : ticks - np->stime;
+      prcst->size = np->sz;
+
+      //Copy the procstate struct to the one pointed by p
+      copyout(myproc()->pagetable, p, (char *)prcst, sizeof(*prcst));
       release(&np->lock);
-    }
+      return 0;
+      }
+    release(&np->lock);
+  }
   return -1;
 }
